@@ -69,7 +69,7 @@ def parse_rim(type: str, products: list, rim_rows: list):
                         card['photo'] = prod[5]
                     else:
                         flag = 1
-                        break
+                    break
             if card['price'] == None or flag == 1:
                 continue
             cards.append(card)

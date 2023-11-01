@@ -27,7 +27,7 @@ def format_alloy_title(card: dict):
         clear_string_et = re.sub(rf'\s{width}\w\b', '', clear_title_J_et)
     
     clear_string = re.sub(rf"\bET{et}\b", "", clear_string_et).replace(f'ET{card["et"]}', '')
-    title = re.sub(" +", " ", clear_string).strip()
+    title = re.sub(" +", " ", clear_string).replace('*', '-').strip()
 
     return title
 
@@ -60,7 +60,7 @@ def format_forged_title(card: dict):
         clear_string_et = re.sub(rf'\s{width}\w\b', '', clear_title_J_et)
     
     clear_string = re.sub(rf"\bET{et}\b", "", clear_string_et).replace(f'ET{card["et"]}', '')
-    title = re.sub(" +", " ", clear_string).strip()
+    title = re.sub(" +", " ", clear_string).replace('*', '-').strip()
 
     if len(title) > 50:
         title = title.replace('RZ FORGED ', '')

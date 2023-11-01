@@ -36,7 +36,7 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                     for card in cards:
                         if card['id'] == row[1].value:
                             if row[2].value == None:
-                                row[2].value = card['title']
+                                row[2].value = card['title'].replace('*', '-')
                             if row[3].value == None:
                                 row[3].value = format_tire_desc(season=card['tire_type'], title=card['title'])
                             if row[4].value != card['price']:
@@ -113,7 +113,7 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                 index = ws.max_row + 1
                 if ws[index][1].value == None:
                     ws[index][1].value = card['id']
-                    ws[index][2].value = card['title']
+                    ws[index][2].value = card['title'].replace('*', '-')
                     ws[index][3].value = format_tire_desc(season=card['tire_type'], title=card['title'])
                     ws[index][4].value = card['price']
                     ws[index][5].value = card['diameter']

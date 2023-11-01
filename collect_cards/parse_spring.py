@@ -83,14 +83,12 @@ def parse_spring(products: list):
                     else:
                         if 'live_photo' not in card:
                             flag = 1
-                        break
             elif isinstance(prod[5], str):
                     card['photo'] = [prod[5]]
             elif isinstance(prod[5], list): 
                 card['photo'] = prod[5]
             else:
                 flag = 1
-                break
         if card['price'] == None or flag == 1:
             continue
         cards.append(card)

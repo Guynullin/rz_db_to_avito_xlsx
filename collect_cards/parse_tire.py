@@ -1,3 +1,14 @@
+from difflib import SequenceMatcher
+
+def similar(db: str, avito: str, p_ratio: float):
+    db_model = db.lower()
+    avito_model = avito.lower()
+    ratio = SequenceMatcher(None, db_model, avito_model).ratio()
+
+    if ratio > p_ratio:
+        return True
+    else:
+        return False
 
 def select_brand_model(db_brand, db_model: str, brands_avito: dict):
     
@@ -7,7 +18,7 @@ def select_brand_model(db_brand, db_model: str, brands_avito: dict):
     clear_model = db_model.replace('IV', '').replace('III', '').replace('SF-988', 'SF988')\
     .replace('EH 23', 'EH23').replace('5 STUDDED', '5').replace('ALL-TERRAIN A/T', 'All-Terrain T/A')\
     .replace('L-ZEAL 56','L-Zeal56').replace('CROCODILE M/T', 'CROCODILE').replace('(БЕЗ ШИПОВ)', '')\
-    .replace('X-PRIVILO TX3', 'X-Privilo TX3').strip()
+    .replace('X-PRIVILO TX3', 'X-Privilo TX3').replace('WINTER I*PIKE RS 2 W429', "WINTER I'PIKE RS2").strip()
 
     if db_brand:
         if 'NOKIAN TYRES'.lower() in db_brand.lower():
@@ -30,21 +41,26 @@ def select_brand_model(db_brand, db_model: str, brands_avito: dict):
             if db_brand.lower() in key.lower():
                 card_brand = key
                 for av_model in brands_avito[key]:
-                    if clear_model.lower() in av_model.lower():
+                    if similar(clear_model, av_model, 0.9):
                         card_model = av_model                        
                         break
+                if card_model == 'Nomodel':
+                    for av_model in brands_avito[key]:
+                        if similar(clear_model, av_model, 0.83):
+                            card_model = av_model                        
+                            break
+                if card_model == 'Nomodel':
+                    for av_model in brands_avito[key]:
+                        if similar(clear_model, av_model, 0.56):
+                            card_model = av_model                        
+                            break
                 break
             
-        if card_brand == 'Nobrand':
-            card_brand = db_brand
-        if card_model == 'Nomodel':
-            card_model = db_model
 
     return {'brand': card_brand, 'model' : card_model}
 
 def parse_tire(products: list, tire_rows: list, brands: dict, brands_avito: dict):
     cards = []
-    count = 0
 
     for tire in tire_rows:
         card = {'id': tire[0]}
@@ -76,7 +92,7 @@ def parse_tire(products: list, tire_rows: list, brands: dict, brands_avito: dict
         flag = 0
         for prod in products:
             if prod[0] == tire[0]:
-                card['title'] = prod[2]
+                card['title'] = prod[2].replace('*', '-')
                 card['slug'] = prod[3]
                 if prod[21] != None and prod[21] > prod[6]:
                     card['price'] = int(prod[21])
@@ -103,7 +119,7 @@ def parse_tire(products: list, tire_rows: list, brands: dict, brands_avito: dict
                     title = f"{card['seasonality']} шина {brand} {card['model']} R{card['diameter']} {card['height']} {card['width']}"
                     if len(title) > 50:
                         title = f"{card['seasonality']} шина {brand} R{card['diameter']} {card['height']} {card['width']}"
-                card['title'] = title
+                card['title'] = title.replace('*', '-')
 
                 data = prod[16]
                 if isinstance(data, dict):
@@ -116,14 +132,12 @@ def parse_tire(products: list, tire_rows: list, brands: dict, brands_avito: dict
                     isinstance(data['replace_bottom_pics'], str):
                         card['live_photo'] = [data['replace_bottom_pics']]
                     if 'replace_pics' in data and data['replace_pics'] != None:
-                        count += 1
-
                         if isinstance(data['replace_pics'], list)\
                         and len(data['replace_pics']) > 0:
                             card['photo'] = data['replace_pics']
                         elif isinstance(data['replace_pics'], str):
                             card['photo'] = [data['replace_pics']]
-                    
+
                     if 'photo' not in card:
                         if isinstance(prod[5], str):
                             card['photo'] = [prod[5]]
@@ -139,8 +153,10 @@ def parse_tire(products: list, tire_rows: list, brands: dict, brands_avito: dict
                     card['photo'] = prod[5]
                 else:
                     flag = 1
-                    break
+                break
         if card['price'] == None or flag == 1:
+            continue
+        if card['model'] == 'Nomodel' or card['brand'] == 'Nobrand':
             continue
         cards.append(card)
 
