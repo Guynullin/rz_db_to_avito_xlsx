@@ -1,5 +1,6 @@
 import logging
 
+from collect_cards.get_brands_models_avito import get_brands_models_avito
 from info_bot import send_message
 from collect_cards.parse_rim import parse_rim
 from collect_cards.parse_tire import parse_tire
@@ -9,6 +10,12 @@ from collect_cards.parse_spring import parse_spring
 def get_cards_from_db(conn):
     with conn.cursor() as curs:
 
+        brands_models_dict_avito = get_brands_models_avito('https://autoload.avito.ru/format/tyres_make.xml')
+        if brands_models_dict_avito == 0:
+            send_message('ERROR\n brands_dict is empty')
+            logging.error('brands_dict is empty')
+            return 0
+        
         cards_dict = {}
         
         # rims alloy + forged
@@ -46,7 +53,7 @@ def get_cards_from_db(conn):
         tire_id_list = list(map(str, tire_id_list))
         curs.execute(f"SELECT * FROM app_tire WHERE product_ptr_id IN ({','.join(tire_id_list)})")
         tire_rows = curs.fetchall()
-        tire_cards = parse_tire(products=products, tire_rows=tire_rows, brands=brands_dict)
+        tire_cards = parse_tire(products=products, tire_rows=tire_rows, brands=brands_dict, brands_avito=brands_models_dict_avito)
         if tire_cards != 0:
             cards_dict['tires'] = tire_cards
 

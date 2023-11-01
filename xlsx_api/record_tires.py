@@ -34,14 +34,11 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                     del_rows.append(index+1)
                 else:
                     for card in cards:
-                        if index == 3:
-                                print(card)
                         if card['id'] == row[1].value:
                             if row[2].value == None:
                                 row[2].value = card['title']
-                            # WARN
                             if row[3].value == None:
-                                row[3].value = format_tire_desc(season=card['seasonality'], title=card['title'])
+                                row[3].value = format_tire_desc(season=card['tire_type'], title=card['title'])
                             if row[4].value != card['price']:
                                 row[4].value = card['price']
                             if row[5].value != card['diameter']:
@@ -67,7 +64,7 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                                 row[12].value = city_data['phone']
                             if row[13].value != '10-048':
                                 row[13].value = '10-048'
-                            if row[14].value != 'Новое':
+                            if row[14].value == None:
                                 row[14].value = 'Новое'
                             if row[15].value == None:
                                 row[15].value = 'Активно'
@@ -81,11 +78,8 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                                 row[19].value = 'Rimzona : сеть магазинов стильных дисков и шин'
                             if row[20].value == None:
                                 row[20].value = 'за 1 шт.'
-                            tyre_type = card['seasonality']
-                            if card['spikes']:
-                                tyre_type = f"{tyre_type} шипованные"
-                            if row[21].value != tyre_type:
-                                row[21].value = tyre_type
+                            if row[21].value == None:
+                                row[21].value = card['tire_type']
                             if row[22].value != card['height']:
                                 row[22].value = card['height']
                             if row[23].value != card['load_index']:
@@ -120,7 +114,7 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                 if ws[index][1].value == None:
                     ws[index][1].value = card['id']
                     ws[index][2].value = card['title']
-                    ws[index][3].value = format_tire_desc(season=card['seasonality'], title=card['title'])
+                    ws[index][3].value = format_tire_desc(season=card['tire_type'], title=card['title'])
                     ws[index][4].value = card['price']
                     ws[index][5].value = card['diameter']
                     ws[index][6].value = 'Легковые шины'
@@ -143,10 +137,7 @@ def record_tires(cards: list, ws: worksheet, city_data: dict):
                     ws[index][18].value = 'Package'
                     ws[index][19].value = 'Rimzona : сеть магазинов стильных дисков и шин'
                     ws[index][20].value = 'за 1 шт.'
-                    tyre_type = card['seasonality']
-                    if card['spikes']:
-                        tyre_type = f"{tyre_type} шипованные"
-                    ws[index][21].value = tyre_type
+                    ws[index][21].value = card['tire_type']
                     ws[index][22].value = card['height']
                     ws[index][23].value = card['load_index']
                     ws[index][24].value = 'Нет'

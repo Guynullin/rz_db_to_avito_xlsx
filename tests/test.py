@@ -7,7 +7,6 @@ from xlsx_api.format_title import format_alloy_title, format_forged_title
 from openpyxl import load_workbook
 import os
 import json
-import importlib
 from config import XLSX_PATH, FILES_LIST
 
 def test_format_titles():

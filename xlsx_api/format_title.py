@@ -6,7 +6,6 @@ def format_alloy_title(card: dict):
         et = f'{et}/{card["et2"]}'
 
     clear_title_J_et = card['title'].replace('ЛИТОЙ ДИСК', 'Литой диск')\
-    .replace('В стиле', 'в стиле').replace('В СТИЛЕ', 'в стиле')\
     .replace(card['model'], '').replace(f"({card['color']})", '')\
     .replace(str(card['dia']), '')\
     .replace('dia', '').replace('DIA', '').strip()
@@ -29,6 +28,7 @@ def format_alloy_title(card: dict):
     
     clear_string = re.sub(rf"\bET{et}\b", "", clear_string_et).replace(f'ET{card["et"]}', '')
     title = re.sub(" +", " ", clear_string).strip()
+
     return title
 
 
@@ -39,7 +39,6 @@ def format_forged_title(card: dict):
         et = f'{et}/{card["et2"]}'
 
     clear_title_J_et = card['title'].replace('КОВАНЫЙ ДИСК', 'Кованый диск')\
-    .replace('В стиле', 'в стиле').replace('В СТИЛЕ', 'в стиле')\
     .replace(card['model'], '').replace(f"({card['color']})", '')\
     .replace(str(card['dia']), '')\
     .replace('dia', '').replace('DIA', '').strip()
@@ -62,11 +61,11 @@ def format_forged_title(card: dict):
     
     clear_string = re.sub(rf"\bET{et}\b", "", clear_string_et).replace(f'ET{card["et"]}', '')
     title = re.sub(" +", " ", clear_string).strip()
-    return title
 
-
-
-def format_tire_title(card: dict):
-    title = card['title']
+    if len(title) > 50:
+        title = title.replace('RZ FORGED ', '')
+        if len(title) > 50:
+            title = title.replace(f"{card['bolts']}x{card['pcd']}", '')\
+                .replace(f"{card['bolts']}X{card['pcd']}", '').strip()
 
     return title

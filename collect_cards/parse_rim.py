@@ -1,5 +1,4 @@
 
-
 def parse_rim(type: str, products: list, rim_rows: list):
     
     cards = []
@@ -24,7 +23,7 @@ def parse_rim(type: str, products: list, rim_rows: list):
             flag = 0
             for prod in products:
                 if prod[0] == rim[0]:
-                    card['title'] = prod[2]
+                    card['title'] = prod[2].replace('В СТИЛЕ', 'в стиле').replace('В стиле', 'в стиле')
                     card['slug'] = prod[3]
                     if prod[21] != None and prod[21] > prod[6]:
                         card['price'] = int(prod[21])

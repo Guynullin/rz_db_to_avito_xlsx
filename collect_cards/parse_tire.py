@@ -1,5 +1,48 @@
 
-def parse_tire(products: list, tire_rows: list, brands: dict):
+def select_brand_model(db_brand, db_model: str, brands_avito: dict):
+    
+    card_brand = 'Nobrand'
+    card_model = 'Nomodel'
+
+    clear_model = db_model.replace('IV', '').replace('III', '').replace('SF-988', 'SF988')\
+    .replace('EH 23', 'EH23').replace('5 STUDDED', '5').replace('ALL-TERRAIN A/T', 'All-Terrain T/A')\
+    .replace('L-ZEAL 56','L-Zeal56').replace('CROCODILE M/T', 'CROCODILE').replace('(БЕЗ ШИПОВ)', '')\
+    .replace('X-PRIVILO TX3', 'X-Privilo TX3').strip()
+
+    if db_brand:
+        if 'NOKIAN TYRES'.lower() in db_brand.lower():
+            db_brand = 'NOKIAN TYRES'
+        if 'KAMA'.lower() in db_brand.lower():
+            db_brand = 'КАМА'
+        if 'TORQUE TIRES'.lower() in db_brand.lower():
+            db_brand = 'TORQUE'
+        if 'TRI-ACE'.lower() in db_brand.lower():
+            db_brand = 'Tri Ace'
+        if 'RAZI TIRE'.lower() in db_brand.lower():
+            db_brand = 'RAZI'
+        if 'БАРНАУЛЬСКИЙ'.lower() in db_brand.lower():
+            db_brand = 'Барнаул'
+        if 'КИРОВСКИЙ'.lower() in db_brand.lower():
+            db_brand = 'КШЗ'
+
+
+        for key in brands_avito:
+            if db_brand.lower() in key.lower():
+                card_brand = key
+                for av_model in brands_avito[key]:
+                    if clear_model.lower() in av_model.lower():
+                        card_model = av_model                        
+                        break
+                break
+            
+        if card_brand == 'Nobrand':
+            card_brand = db_brand
+        if card_model == 'Nomodel':
+            card_model = db_model
+
+    return {'brand': card_brand, 'model' : card_model}
+
+def parse_tire(products: list, tire_rows: list, brands: dict, brands_avito: dict):
     cards = []
     count = 0
 
@@ -15,8 +58,15 @@ def parse_tire(products: list, tire_rows: list, brands: dict):
         card['diameter'] = tire[5]
         card['height'] = tire[6]
         card['width'] = tire[7]
-        card['seasonality'] = tire[8].replace('Летняя', 'Летние').replace('Зимняя', 'Зимние')\
-        .replace('Всесезонная', 'Всесезонные')
+        card['seasonality'] = tire[8]
+        
+        tyre_type = card['seasonality'].replace('Летняя', 'Летние').replace('Зимняя', 'Зимние')\
+            .replace('Всесезонная', 'Всесезонные')
+        if card['spikes']:
+            tyre_type = f"{tyre_type} шипованные"
+        elif tyre_type == 'Зимние':
+            tyre_type = f"{tyre_type} нешипованные"
+        card['tire_type'] = tyre_type
         card['suv'] = tire[9]
         if tire[10] == 0:
             card['runflat'] = 'Нет'
@@ -39,11 +89,22 @@ def parse_tire(products: list, tire_rows: list, brands: dict):
                 if card['price'] == 0:
                     flag = 1
                     break
-                if prod[9] in brands:
-                    card['brand'] = brands[prod[9]]
-                else:
-                    card['brand'] = prod[9]
-                card['model'] = prod[10]
+                
+                brand_model = select_brand_model(brands[prod[9]], prod[10], brands_avito)
+                card['brand'] = brand_model['brand']
+                card['model'] = brand_model['model']
+
+                title = prod[2].replace('Шина', f"{card['seasonality']} шина")\
+                    .replace('(Нижнекамский шинный завод) ', '')
+                
+                brand = card['brand'].replace('(Нижнекамский шинный завод)', '')
+                
+                if len(title) > 50:
+                    title = f"{card['seasonality']} шина {brand} {card['model']} R{card['diameter']} {card['height']} {card['width']}"
+                    if len(title) > 50:
+                        title = f"{card['seasonality']} шина {brand} R{card['diameter']} {card['height']} {card['width']}"
+                card['title'] = title
+
                 data = prod[16]
                 if isinstance(data, dict):
                     if 'replace_bottom_pics' in data and data['replace_bottom_pics'] != None\
@@ -82,7 +143,7 @@ def parse_tire(products: list, tire_rows: list, brands: dict):
         if card['price'] == None or flag == 1:
             continue
         cards.append(card)
-    print(f'count: {count}')
+
     if len(cards) > 0:
         return cards
     else:

@@ -37,15 +37,11 @@ def record_forged_rims(cards: list, ws: worksheet, city_data: dict):
                     del_rows.append(index+1)
                 else:
                     for card in cards:
-                        if index == 3:
-                                print(card)
                         if card['id'] == row[1].value:
                             if row[2].value == None:
-                                title = format_forged_title(card)
-                                row[2].value = title
+                                row[2].value = format_forged_title(card)
                             if row[3].value == None:
-                                title = format_forged_title(card)
-                                row[3].value = format_rim_desc(title=title)
+                                row[3].value = format_rim_desc(title=card['title'])
                             if row[4].value != card['price']:
                                 row[4].value = card['price']
                             if row[5].value != card['diameter']:
@@ -81,7 +77,7 @@ def record_forged_rims(cards: list, ws: worksheet, city_data: dict):
                                 row[17].value = city_data['email']
                             if row[18].value == None:
                                 row[18].value = city_data['phone']
-                            if row[19].value == None:
+                            if row[19].value != '10-046':
                                 row[19].value = '10-046'
                             if row[20].value == None:
                                 row[20].value = 'Rimzona'
@@ -114,9 +110,8 @@ def record_forged_rims(cards: list, ws: worksheet, city_data: dict):
                 index = ws.max_row + 1
                 if ws[index][1].value == None:
                     ws[index][1].value = card['id']
-                    title = format_forged_title(card)
-                    ws[index][2].value = title
-                    ws[index][3].value = format_rim_desc(title=title)
+                    ws[index][2].value = format_forged_title(card)
+                    ws[index][3].value = format_rim_desc(title=card['title'])
                     ws[index][4].value = card['price']
                     ws[index][5].value = card['diameter']
                     ws[index][6].value = card['bolts']

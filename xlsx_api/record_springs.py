@@ -27,9 +27,6 @@ def record_springs(cards: list, ws: worksheet, city_data: dict):
         for card in cards:
             cards_id_list.append(card['id'])
 
-        # print(f"tire len : {len(cards)}")
-        # return
-
         del_rows = []
         for index, row in enumerate(ws.rows):
             if row[1].value == 'Id':
@@ -39,8 +36,6 @@ def record_springs(cards: list, ws: worksheet, city_data: dict):
                     del_rows.append(index+1)
                 else:
                     for card in cards:
-                        if index == 3:
-                                print(card)
                         if card['id'] == row[1].value:
                             if row[2].value == None:
                                 row[2].value = city_data['phone']
@@ -73,7 +68,7 @@ def record_springs(cards: list, ws: worksheet, city_data: dict):
                                 if 'photo' in card:
                                     photo_list += ['https://rimzona.ru/media/{}'.format(slug) for slug in card['photo']]
                                 row[14].value = ' | '.join(photo_list)
-                            if row[15].value == None:
+                            if row[15].value != '11-623':
                                 row[15].value = '11-623'
                             if row[16].value == None:
                                 row[16].value = 'Новое'
@@ -83,7 +78,7 @@ def record_springs(cards: list, ws: worksheet, city_data: dict):
                                 row[18].value = random.choice(city_data['adress'])
                             if row[19].value == None:
                                 row[19].value = 'Активно'
-                            if row[20].value != card['brand']:
+                            if row[20].value == None:
                                 row[20].value = card['brand']
                             if row[21].value == None:
                                 row[21].value = card['model']
